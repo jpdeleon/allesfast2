@@ -150,26 +150,49 @@ def dopptom_chi2(
     nvels, ntimes = ccf2d.shape
     model = np.full((nvels, ntimes), median_ccf, dtype=np.float64)
 
+    # Pre-compute per-pixel half-widths (vsini units).
+    dv_half = 0.5 * stepsize_sini[relevant]
+
+    def _F(y):
+        # antiderivative of √(1−y²) on |y|≤1
+        return 0.5 * (y * np.sqrt(np.clip(1.0 - y * y, 0.0, None))
+                      + np.arcsin(np.clip(y, -1.0, 1.0)))
+
     for i in range(ntimes):
         if beta[i] <= 0:
             continue
-        c2 = ((velsini_rel - up[i]) / velwidth) ** 2
-        valid = c2 < 1.0
-        if not np.any(valid):
+        # Pixel-integrated elliptical planet-line profile.  This avoids
+        # sub-pixel sampling artifacts when k·vsini < pixel width
+        # (e.g. slow rotators k≪1 on R~10⁵ spectrographs):
+        #   ḡ_i = (c1 k / Δv_i) · [F(y₊) − F(y₋)]
+        # with y± = clip(((v_i ± Δv/2) − up)/k, −1, 1).
+        y_hi = (velsini_rel + dv_half - up[i]) / velwidth
+        y_lo = (velsini_rel - dv_half - up[i]) / velwidth
+        y_hi = np.clip(y_hi, -1.0, 1.0)
+        y_lo = np.clip(y_lo, -1.0, 1.0)
+        rotprofile = (c1 * velwidth / (2.0 * dv_half)) * (_F(y_hi) - _F(y_lo))
+        if not np.any(rotprofile > 0):
             continue
-        rotprofile = np.zeros(nrelvel)
-        rotprofile[valid] = c1 * np.sqrt(1.0 - c2[valid])
         # Gaussian convolution (in vsini units)
         unnormalized = _gaus_convol(velsini_rel, rotprofile, gauss_rel)
-        # Normalisation: integrate unnormalised over stepsize
         norm_int = float(np.sum(unnormalized * stepsize_sini[relevant]))
         if norm_int == 0.0 or not np.isfinite(norm_int):
             continue
         model[relevant, i] += beta[i] * (1.0 / norm_int) * unnormalized
 
     # ---- χ² with IndepVels correction ----
+    # Effective χ² = -2·log L (Gaussian) / IndepVels, matching EXOFASTv2
+    # exofast_like(/chi2).  Including the log-normalisation term is what
+    # constrains errscale; without it, errscale runs to +∞ trivially.
     resid = ccf2d - model
-    chi2 = float(np.sum((resid / (rms * errscale)) ** 2) / indep_vels)
+    sigma = rms * errscale
+    # rms can be a scalar or per-pixel array; broadcast safely
+    if np.ndim(sigma) == 0:
+        log_norm_sum = ccf2d.size * np.log(2.0 * np.pi * sigma ** 2)
+    else:
+        log_norm_sum = ccf2d.shape[1] * float(np.sum(np.log(2.0 * np.pi * sigma ** 2)))
+    chisq_raw = float(np.sum((resid / sigma) ** 2))
+    chi2 = (chisq_raw + log_norm_sum) / indep_vels
 
     if not np.isfinite(chi2):
         return (np.inf, model) if return_model else np.inf

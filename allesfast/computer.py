@@ -1979,11 +1979,15 @@ def calculate_lnlike_total(params, debug=False):
         w_b = float(np.mod(np.arctan2(_fs, _fc), 2 * np.pi))
         tc_b = float(params[companion + '_epoch'])
         per_b = float(params[companion + '_period'])
-        # Spin–orbit angle (radians).  Prefer companion-specific lambda,
-        # else fall back to host-wide A_lambda.
-        lam_b = params.get(companion + '_lambda',
-                            params.get('A_lambda', 0.0))
-        lam_b = float(lam_b)
+        # Spin–orbit angle.  allesfast convention stores lambda in DEGREES
+        # (both companion_lambda and A_lambda, derived from svsini params
+        # in update_params); dopptom_chi2 expects RADIANS.
+        _lam_deg = params.get(companion + '_lambda')
+        if _lam_deg is None:
+            _lam_deg = params.get('A_lambda')
+        if _lam_deg is None:
+            _lam_deg = 0.0
+        lam_b = float(_lam_deg) * np.pi / 180.0
 
         # vsini in km/s (allesfast stores in km/s already)
         vsini_kms = float(params.get('A_vsini', 0.0))

@@ -473,7 +473,8 @@ class DEMCPTSampler:
                  vectorize=False,
                  maxgr=1.01, mintz=1000, seed=None,
                  adapt_temps=False, adapt_halflife=1000,
-                 swap_mode='bidirectional'):
+                 swap_mode='bidirectional',
+                 keep_hot=False):
         self.logpost_func = log_posterior
         # vectorize: if True, logpost accepts (nchains, ndim) and returns (nchains,)
         if vectorize:
@@ -520,9 +521,15 @@ class DEMCPTSampler:
         self.gamma = 2.38 / np.sqrt(2.0 * ndim)
         self.a_stretch = 2.0
 
+        # If True, store all temperatures (memory cost: ntemps× the cold).
+        # Useful for diagnosing PT mixing — `get_chain(temp=k)` returns the
+        # k-th temperature's chain.  Default False keeps only the cold chain.
+        self.keep_hot = bool(keep_hot)
+        self._stored_keep_hot = self.keep_hot   # tracks the chain's actual shape
+
         # results (populated by run)
-        self._chain = None
-        self._log_prob = None
+        self._chain = None        # (nsteps, nchains, ndim) or (nsteps, nchains, ntemps, ndim) if keep_hot
+        self._log_prob = None     # (nsteps, nchains) or (nsteps, nchains, ntemps) if keep_hot
         self._pos_full = None     # (nchains, ntemps, ndim)
         self._logp_full = None    # (nchains, ntemps)
         self._acceptance_rate = np.nan
@@ -741,11 +748,18 @@ class DEMCPTSampler:
         if progress:
             print()
 
-        # ---- storage (cold chain only) -------------------------------------
-        chain = np.empty((nsteps, nchains, ndim))
-        log_prob = np.empty((nsteps, nchains))
-        chain[0] = pos[:, 0]
-        log_prob[0] = logp[:, 0]
+        # ---- storage ---------------------------------------------------------
+        # keep_hot=True stores all temperatures (memory cost: ntemps×).
+        if self.keep_hot:
+            chain = np.empty((nsteps, nchains, ntemps, ndim))
+            log_prob = np.empty((nsteps, nchains, ntemps))
+            chain[0] = pos
+            log_prob[0] = logp
+        else:
+            chain = np.empty((nsteps, nchains, ndim))
+            log_prob = np.empty((nsteps, nchains))
+            chain[0] = pos[:, 0]
+            log_prob[0] = logp[:, 0]
 
         naccept = 0
         nattempt = 0
@@ -847,8 +861,12 @@ class DEMCPTSampler:
                         pos, logp, all_proposals, all_new_lps,
                         all_log_facs, betas, _rlu, nchains, ntemps)
 
-                    chain[i] = pos[:, 0]
-                    log_prob[i] = logp[:, 0]
+                    if self.keep_hot:
+                        chain[i] = pos
+                        log_prob[i] = logp
+                    else:
+                        chain[i] = pos[:, 0]
+                        log_prob[i] = logp[:, 0]
 
                 # --- adaptive temperature ladder ---
                 if self.adapt_temps:
@@ -869,9 +887,14 @@ class DEMCPTSampler:
 
                 # --- Compute GR/Tz at check_every; cache last value ------
                 if (i + 1) % check_every == 0 and i > 2 * nchains:
-                    chi2 = -2.0 * log_prob[:i + 1]
+                    # Always use cold chain for convergence diagnostics.
+                    _cold_chain_slice = (chain[:i + 1, :, 0, :]
+                                          if self.keep_hot else chain[:i + 1])
+                    _cold_logp_slice  = (log_prob[:i + 1, :, 0]
+                                          if self.keep_hot else log_prob[:i + 1])
+                    chi2 = -2.0 * _cold_logp_slice
                     burnndx = _find_burnin(chi2)
-                    post_burn = chain[burnndx:i + 1]
+                    post_burn = _cold_chain_slice[burnndx:]
                     if post_burn.shape[0] > 10:
                         Rhat, Tz = _gelman_rubin(post_burn)
                         _last_gr = float(np.max(Rhat))
@@ -1086,9 +1109,14 @@ class DEMCPTSampler:
 
                 # --- Compute GR/Tz at check_every; cache last value ------
                 if (i + 1) % check_every == 0 and i > 2 * nchains:
-                    chi2 = -2.0 * log_prob[:i + 1]
+                    # Always use cold chain for convergence diagnostics.
+                    _cold_chain_slice = (chain[:i + 1, :, 0, :]
+                                          if self.keep_hot else chain[:i + 1])
+                    _cold_logp_slice  = (log_prob[:i + 1, :, 0]
+                                          if self.keep_hot else log_prob[:i + 1])
+                    chi2 = -2.0 * _cold_logp_slice
                     burnndx = _find_burnin(chi2)
-                    post_burn = chain[burnndx:i + 1]
+                    post_burn = _cold_chain_slice[burnndx:]
                     if post_burn.shape[0] > 10:
                         Rhat, Tz = _gelman_rubin(post_burn)
                         _last_gr = float(np.max(Rhat))
@@ -1157,7 +1185,22 @@ class DEMCPTSampler:
 
     # ----- emcee-compatible API ----------------------------------------------
 
-    def get_chain(self, flat=False, discard=0, thin=1):
+    def _cold_chain(self):
+        """Return the cold-chain view of self._chain, regardless of keep_hot."""
+        if self._chain is None:
+            return None
+        if self._stored_keep_hot:
+            return self._chain[..., 0, :]    # (nsteps, nchains, ndim)
+        return self._chain
+
+    def _cold_log_prob(self):
+        if self._log_prob is None:
+            return None
+        if self._stored_keep_hot:
+            return self._log_prob[..., 0]    # (nsteps, nchains)
+        return self._log_prob
+
+    def get_chain(self, flat=False, discard=0, thin=1, temp=0):
         """
         Return the chain array, compatible with emcee's API.
 
@@ -1169,6 +1212,10 @@ class DEMCPTSampler:
             Number of leading steps to discard (burn-in).
         thin : int
             Keep every thin-th step.
+        temp : int
+            Temperature index to return (0 = cold, default).  Hot
+            temperatures are only available when the sampler was run
+            with ``keep_hot=True``; otherwise ``temp != 0`` raises.
 
         Returns
         -------
@@ -1176,14 +1223,26 @@ class DEMCPTSampler:
         """
         if self._chain is None:
             raise RuntimeError("No chain data. Call run() first.")
-        chain = self._chain[discard::thin]   # (nsteps, nchains, ndim)
+        if temp != 0:
+            if not self._stored_keep_hot:
+                raise ValueError(
+                    f"Hot temperature {temp} requested but only the cold "
+                    "chain was stored.  Re-run with keep_hot=True.")
+            if not (0 <= temp < self.ntemps):
+                raise ValueError(f"temp must be in [0, {self.ntemps-1}].")
+            full = self._chain[..., temp, :]
+        else:
+            full = self._cold_chain()
+        chain = full[discard::thin]
         if flat:
             return chain.reshape(-1, self.ndim)
         return chain
 
-    def get_log_prob(self, flat=False, discard=0, thin=1):
+    def get_log_prob(self, flat=False, discard=0, thin=1, temp=0):
         """
         Return the log-probability array, compatible with emcee's API.
+
+        Parameters mirror :meth:`get_chain`.
 
         Returns
         -------
@@ -1191,7 +1250,15 @@ class DEMCPTSampler:
         """
         if self._log_prob is None:
             raise RuntimeError("No chain data. Call run() first.")
-        lp = self._log_prob[discard::thin]   # (nsteps, nchains)
+        if temp != 0:
+            if not self._stored_keep_hot:
+                raise ValueError(
+                    f"Hot temperature {temp} requested but only the cold "
+                    "chain was stored.  Re-run with keep_hot=True.")
+            full = self._log_prob[..., temp]
+        else:
+            full = self._cold_log_prob()
+        lp = full[discard::thin]
         if flat:
             return lp.ravel()
         return lp
@@ -1212,21 +1279,24 @@ class DEMCPTSampler:
 
     @property
     def flatchain(self):
-        """Flat chain with burn-in removed and bad chains discarded."""
-        if self._chain is None:
+        """Flat cold chain with burn-in removed and bad chains discarded."""
+        cc = self._cold_chain()
+        clp = self._cold_log_prob()
+        if cc is None:
             return None
-        chi2 = -2.0 * self._log_prob
+        chi2 = -2.0 * clp
         burnndx, good = _getburnndx(chi2)
-        return self._chain[burnndx:, good].reshape(-1, self.ndim)
+        return cc[burnndx:, good].reshape(-1, self.ndim)
 
     @property
     def flatlog_prob(self):
         """Flat log-posterior with burn-in removed and bad chains discarded."""
-        if self._log_prob is None:
+        clp = self._cold_log_prob()
+        if clp is None:
             return None
-        chi2 = -2.0 * self._log_prob
+        chi2 = -2.0 * clp
         burnndx, good = _getburnndx(chi2)
-        return self._log_prob[burnndx:, good].ravel()
+        return clp[burnndx:, good].ravel()
 
     # ----- diagnostics -------------------------------------------------------
 
@@ -1246,14 +1316,17 @@ class DEMCPTSampler:
             _log("No chain. Call run() first.")
             return None
 
-        chi2 = -2.0 * self._log_prob
+        # Convergence diagnostics always run on cold chain only.
+        cc = self._cold_chain()
+        clp = self._cold_log_prob()
+        chi2 = -2.0 * clp
         burnndx, good = _getburnndx(chi2)
         n_bad = self.nchains - len(good)
 
-        post_burn = self._chain[burnndx:, good]
+        post_burn = cc[burnndx:, good]
         Rhat, Tz = _gelman_rubin(post_burn)
 
-        nsteps = self._chain.shape[0]
+        nsteps = cc.shape[0]
         _log(f"\nConvergence check (DEMCPT)")
         _log(f"----------------------------")
         _log(f"Steps: {nsteps}  Burn-in: {burnndx}  "
@@ -1313,6 +1386,7 @@ class DEMCPTSampler:
             cfg.attrs["stretch_fraction"] = self.stretch_fraction
             cfg.attrs["adapt_temps"] = self.adapt_temps
             cfg.attrs["adapt_halflife"] = self.adapt_halflife
+            cfg.attrs["keep_hot"] = self._stored_keep_hot
             cfg.create_dataset("betas", data=self.betas)
 
     @classmethod
@@ -1333,16 +1407,19 @@ class DEMCPTSampler:
             stretch_fraction = float(cfg.attrs.get("stretch_fraction", 0.0))
             adapt_temps = bool(cfg.attrs.get("adapt_temps", False))
             adapt_halflife = float(cfg.attrs.get("adapt_halflife", 1000))
+            keep_hot = bool(cfg.attrs.get("keep_hot", False))
             betas = cfg["betas"][:]
             betas_history = f["betas_history"][:] if "betas_history" in f else None
 
         sampler = cls(log_posterior, ndim=ndim, nchains=nchains,
                       ntemps=ntemps, stretch=stretch, stretch_fraction=stretch_fraction,
                       maxgr=maxgr, mintz=mintz,
-                      adapt_temps=adapt_temps, adapt_halflife=adapt_halflife)
+                      adapt_temps=adapt_temps, adapt_halflife=adapt_halflife,
+                      keep_hot=keep_hot)
         sampler.betas = betas
         sampler._chain = chain
         sampler._log_prob = log_prob_data
+        sampler._stored_keep_hot = (chain.ndim == 4)  # full-stored detection
         sampler._pos_full = pos_full
         sampler._logp_full = logp_full
         sampler._betas_history = betas_history
@@ -1364,7 +1441,10 @@ class DEMCPTSampler:
         """
         if self._chain is None:
             raise RuntimeError("No chain data. Call run() first.")
-        nsteps, nchains, ndim = self._chain.shape
+        # emcee-compatible backend stores cold chain only.
+        cc = self._cold_chain()
+        clp = self._cold_log_prob()
+        nsteps, nchains, ndim = cc.shape
         with h5py.File(filename, "w") as f:
             g = f.create_group("mcmc")
             g.attrs["version"] = "1.0.0_demcpt"
@@ -1372,9 +1452,9 @@ class DEMCPTSampler:
             g.attrs["ndim"] = ndim
             g.attrs["has_blobs"] = False
             g.attrs["iteration"] = nsteps
-            g.create_dataset("chain", data=self._chain, dtype="float64",
+            g.create_dataset("chain", data=cc, dtype="float64",
                              compression="gzip", compression_opts=4)
-            g.create_dataset("log_prob", data=self._log_prob, dtype="float64",
+            g.create_dataset("log_prob", data=clp, dtype="float64",
                              compression="gzip", compression_opts=4)
             accepted = g.create_dataset("accepted", shape=(nchains,), dtype="float64")
             accepted[:] = self._acceptance_rate * nsteps

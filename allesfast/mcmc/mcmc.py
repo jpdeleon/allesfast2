@@ -1167,6 +1167,7 @@ def _run_demcpt(s, p0_de=None, de_pop=None):
         sampler   = DEMCPTSampler(
             mcmc_lnprob, ndim=config.BASEMENT.ndim,
             nchains=nchains, ntemps=ntemps, maxgr=maxgr, mintz=mintz,
+            keep_hot=bool(s.get('mcmc_keep_hot', False)),
         )
         converged = sampler.run(
             p0=p0_start, nsteps=nsteps, nthin=nthin,
