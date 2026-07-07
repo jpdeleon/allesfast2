@@ -1348,6 +1348,7 @@ def rv_fct(params, inst, companion, xx=None, settings=None):
             ecc = params[companion+'_ecc']
             omega = np.rad2deg(np.mod( np.arctan2(params[companion+'_f_s'], params[companion+'_f_c']), 2*np.pi))
             q1, q2 = params['A_ldc_'+inst]
+            q1 = np.clip(q1, 0, 1)
             u1 = 2*np.sqrt(q1)*q2; u2 = np.sqrt(q1)*(1-2*q2)
             teff_val = _teff_rm
             if len(time) == 0:

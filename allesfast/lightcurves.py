@@ -290,8 +290,9 @@ def translate_limb_darkening_from_q_to_u(q, law=None):
         return q
         
     elif law == 'quad':
-        u1 = 2.*np.sqrt(q[0]) * q[1]
-        u2 = np.sqrt(q[0]) * (1. - 2.*q[1])
+        q0 = np.clip(q[0], 0, 1)
+        u1 = 2.*np.sqrt(q0) * q[1]
+        u2 = np.sqrt(q0) * (1. - 2.*q[1])
         return [ u1, u2 ]
         
     elif law == 'sing':

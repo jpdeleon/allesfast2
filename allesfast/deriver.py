@@ -513,8 +513,9 @@ def derive(samples, mode):
                 derived_samples['A_ldc_u1_'+inst] = get_params('A_ldc_q1_'+inst)
                 
             elif config.BASEMENT.settings['A_ld_law_'+inst] == 'quad':
-                derived_samples['A_ldc_u1_'+inst] = 2 * np.sqrt(get_params('A_ldc_q1_'+inst)) * get_params('A_ldc_q2_'+inst)
-                derived_samples['A_ldc_u2_'+inst] = np.sqrt(get_params('A_ldc_q1_'+inst)) * (1. - 2. * get_params('A_ldc_q2_'+inst))
+                q1 = np.clip(get_params('A_ldc_q1_'+inst), 0, 1)
+                derived_samples['A_ldc_u1_'+inst] = 2 * np.sqrt(q1) * get_params('A_ldc_q2_'+inst)
+                derived_samples['A_ldc_u2_'+inst] = np.sqrt(q1) * (1. - 2. * get_params('A_ldc_q2_'+inst))
                 
             elif config.BASEMENT.settings['A_ld_law_'+inst] == 'sing':
                 derived_samples['A_ldc_u1_'+inst] = np.nan*np.empty(N_samples)
