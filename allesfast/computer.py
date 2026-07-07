@@ -241,7 +241,7 @@ def get_rm_hirano2011(time, rr, ar, period, t0, inc, ecc, omega, lambda_r, vsini
     # Convert conjunction time to periastron time for the Hirano model.
     if (ecc > 0.0) or (omega_deg != 90.0):
         f = 0.5 * np.pi - omega_rad
-        e_anom = 2.0 * np.arctan(np.tan(0.5 * f) * np.sqrt((1.0 - ecc) / (1.0 + ecc)))
+        e_anom = 2.0 * np.arctan2(np.sin(0.5 * f) * np.sqrt((1.0 - ecc) / (1.0 + ecc)), np.cos(0.5 * f))
         tp = t0 - period / (2.0 * np.pi) * (e_anom - ecc * np.sin(e_anom))
     else:
         tp = t0

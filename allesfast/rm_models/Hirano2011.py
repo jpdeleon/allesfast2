@@ -80,7 +80,7 @@ def _true_anomaly(bjd, tp, period, ecc):
     if ecc <= 0.0:
         return mean_anom
     ecc_anom = _kepler_eq(mean_anom, ecc)
-    return 2.0 * np.arctan(np.sqrt((1.0 + ecc) / (1.0 - ecc)) * np.tan(ecc_anom / 2.0))
+    return 2.0 * np.arctan2(np.sqrt((1.0 + ecc) / (1.0 - ecc)) * np.sin(ecc_anom / 2.0), np.cos(ecc_anom / 2.0))
 
 
 def _planet_xy(true_anom, ecc, omega, ar, inc, lam):
@@ -98,7 +98,7 @@ def _planet_xy(true_anom, ecc, omega, ar, inc, lam):
 def _tp_to_t0(tp, period, ecc, omega):
     if (ecc > 0.0) or (omega != 0.5 * np.pi):
         f = 0.5 * np.pi - omega
-        e_anom = 2.0 * np.arctan(np.tan(0.5 * f) * np.sqrt((1.0 - ecc) / (1.0 + ecc)))
+        e_anom = 2.0 * np.arctan2(np.sin(0.5 * f) * np.sqrt((1.0 - ecc) / (1.0 + ecc)), np.cos(0.5 * f))
         return tp + period / (2.0 * np.pi) * (e_anom - ecc * np.sin(e_anom))
     return tp
 
