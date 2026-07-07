@@ -235,9 +235,8 @@ def calc_M_comp_from_RV(K, P, incl, ecc, M_host,
         
     #use the exoplanet approximation (just for testing)
     else:
-        return ( K / np.sin(incl) * np.sqrt(1 - ecc**2) \
-                 * np.cbrt(P / (2*np.pi*G) * (M_host)**2) ) / return_unit 
-               #TODO, something is not right here
+        return ( K / np.sin(np.deg2rad(incl)) * np.sqrt(1 - ecc**2) \
+                 * np.cbrt(P / (2*np.pi*G) * (M_host)**2) ) / return_unit
             
 
 
