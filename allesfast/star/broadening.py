@@ -50,6 +50,8 @@ def estimate_vmac(teff, logg, feh):
     v = _vmac_doyle2014(teff, logg, feh)
     if np.isnan(v):
         v = _vmac_ges(teff, logg, feh)
+    if np.isnan(v):
+        v = 0.0
     return max(float(v), 0.0)
 
 
@@ -87,4 +89,6 @@ def estimate_vmic(teff, logg, feh):
     v = _vmic_bruntt2010(teff, logg, feh)
     if np.isnan(v):
         v = _vmic_ges(teff, logg, feh)
+    if np.isnan(v):
+        v = 0.0
     return max(float(v), 0.0)
