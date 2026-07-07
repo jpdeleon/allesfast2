@@ -2582,7 +2582,8 @@ def calculate_stellar_var(params, inst, key, model=None, baseline=None, yerr_w=N
     if stellar_var_method not in ['none']:
         if key=='flux': key2 = 'inst_phot'
         elif key=='rv': key2 = 'inst_rv'
-        else: raise KeyError('Kaput.')
+        elif key=='rv2': key2 = 'inst_rv2'
+        else: raise KeyError('Unknown key type: '+key)
         
         if inst=='all': insts = config.BASEMENT.settings[key2]
         else: insts = [inst]
@@ -2682,6 +2683,8 @@ def stellar_var_sample_linear(*args):
     x, y, yerr_w, xx, params, key = args
     if key=='flux': key2 = 'inst_phot'
     elif key=='rv': key2 = 'inst_rv'
+    elif key=='rv2': key2 = 'inst_rv2'
+    else: raise KeyError('Unknown key type: '+key)
     x_all = 1.*config.BASEMENT.data[key2]['time']
     xx_norm = (xx-x_all[0]) / (x_all[-1]-x_all[0])
 #    xx_norm = (xx - config.BASEMENT.settings['mid_epoch'])
