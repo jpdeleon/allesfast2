@@ -14,7 +14,6 @@ Email: maxgue@mit.edu
 Web: www.mnguenther.com
 """
 
-from __future__ import print_function, division, absolute_import
 
 #::: plotting settings
 import seaborn as sns

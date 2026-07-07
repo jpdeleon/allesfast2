@@ -21,7 +21,6 @@ Panels are auto-detected from settings.csv and available modelfiles:
 
 Model files must be generated first via show_initial_guess / de_fit / mcmc_output.
 """
-from __future__ import annotations
 
 import os
 import glob as _glob

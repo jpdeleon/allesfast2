@@ -5,7 +5,6 @@ Credit & source: https://gist.github.com/salotz/4f585aac1adb6b14305c
 """
 
 
-from __future__ import print_function, division, absolute_import
 
 """ new colormaps from old: stack, truncate builtin cmaps / files / numpy arrays
 What's a colormap or cmap in matplotlib ?

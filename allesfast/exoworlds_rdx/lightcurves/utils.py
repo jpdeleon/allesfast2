@@ -13,7 +13,6 @@ Twitter: m_n_guenther
 Web: www.mnguenther.com
 """
 
-from __future__ import print_function, division, absolute_import
 
 #::: modules
 import numpy as np

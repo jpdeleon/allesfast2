@@ -2,7 +2,6 @@
 Diagnostic plots for stellar constraints (SED + MIST).
 """
 
-from __future__ import annotations
 
 import os
 import glob as _glob

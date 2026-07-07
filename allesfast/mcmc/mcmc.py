@@ -14,7 +14,6 @@ Twitter: m_n_guenther
 Web: www.mnguenther.com
 """
 # /N/u/xwa5/Quartz/.conda/envs/normal/lib/python3.8/site-packages/pytransit/
-from __future__ import print_function, division, absolute_import
 
 #::: modules
 import numpy as np
