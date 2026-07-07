@@ -72,11 +72,13 @@ def _kepler_eq(m, ecc, thresh=1e-10):
         if np.max(np.abs(step)) < thresh:
             break
 
-    return np.mod(e_anom, 2.0 * np.pi)
+    e_anom = np.mod(e_anom, 2.0 * np.pi)
+    e_anom = np.where(np.isfinite(e_anom), e_anom, np.pi)
+    return e_anom
 
 
 def _true_anomaly(bjd, tp, period, ecc):
-    mean_anom = 2.0 * np.pi * (1.0 + np.mod((bjd - tp) / period, 1.0))
+    mean_anom = 2.0 * np.pi * np.mod((bjd - tp) / period, 1.0)
     if ecc <= 0.0:
         return mean_anom
     ecc_anom = _kepler_eq(mean_anom, ecc)
