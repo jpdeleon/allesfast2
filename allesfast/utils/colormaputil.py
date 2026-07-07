@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Credit & source: https://gist.github.com/salotz/4f585aac1adb6b14305c
