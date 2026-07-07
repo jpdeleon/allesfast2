@@ -330,7 +330,7 @@ def update_params(theta):
     #::: Supports per-companion (e.g. b_svsinicoslambda) with fallback to A_svsinicoslambda
     #=========================================================================
     # Global (legacy) sv-parameterization: A_svsinicoslambda → A_vsini / A_lambda
-    if params.get('A_svsinicoslambda') is not None:
+    if params.get('A_svsinicoslambda') is not None and params.get('A_svsinisinlambda') is not None:
         _sc = params['A_svsinicoslambda']
         _ss = params['A_svsinisinlambda']
         params['A_vsini']  = _sc**2 + _ss**2
@@ -339,7 +339,7 @@ def update_params(theta):
     for companion in config.BASEMENT.settings['companions_all']:
         _comp_sc_key = companion + '_svsinicoslambda'
         _comp_ss_key = companion + '_svsinisinlambda'
-        if params.get(_comp_sc_key) is not None:
+        if params.get(_comp_sc_key) is not None and params.get(_comp_ss_key) is not None:
             _sc = params[_comp_sc_key]
             _ss = params[_comp_ss_key]
             params['A_vsini']  = _sc**2 + _ss**2
