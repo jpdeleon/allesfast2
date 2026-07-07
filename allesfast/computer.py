@@ -815,16 +815,6 @@ def flux_subfct_ellc(params, inst, companion, xx=None, settings=None, t_exp=None
     else:
         return model_flux, model_flux1, model_flux2
 
-        
-    #-------------------------------------------------------------------------- 
-    #::: return
-    #-------------------------------------------------------------------------- 
-    if not return_fluxes:
-        return model_flux
-    else:
-        return model_flux, model_flux1, model_flux2
-    
-    
 
 #==============================================================================
 #::: flux sub-fct: sinusoidal phase curves, allowing phase shifts
