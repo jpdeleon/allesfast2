@@ -1170,8 +1170,6 @@ class Basement():
         for _ltr in 'BCDEFGHIJKLMNOPQRSTUVWXYZ':
             if any(k.startswith(f'{_ltr}_') for k in self.allkeys):
                 self.nstars += 1
-            else:
-                break
 
         #==========================================================================
         #::: derived parameters with optional priors
