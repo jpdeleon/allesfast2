@@ -95,7 +95,6 @@ def prepare_ttv_fit(datadir, style='fullplot', max_transits=20):
     #----------------------------------------------------------------------
     eclipse_width = {}
     for companion in alles.settings['companions_phot']:
-        alles.initial_guess_params_median[companion+'_epoch']
         eclipse_width[companion] = eclipse_width_smart(alles.initial_guess_params_median[companion+'_period'], 
                                                         alles.initial_guess_params_median[companion+'_rr'], 
                                                         alles.initial_guess_params_median[companion+'_rsuma'], 
