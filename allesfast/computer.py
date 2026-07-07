@@ -2105,6 +2105,8 @@ def calculate_yerr_w(params, inst, key):
         else:
             # legacy: additive jitter (always positive)
             yerr_w = np.sqrt( config.BASEMENT.data[inst]['white_noise_'+key]**2 + params['jitter_'+key+'_'+inst]**2 )
+    else:
+        raise ValueError(f'Unknown instrument: inst={inst}, key={key}')
     return yerr_w
 
 
