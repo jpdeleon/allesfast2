@@ -912,7 +912,7 @@ class Basement():
         def validate(key, default, default_min, default_max):
             if (key in self.params) and (self.params[key] is not None):
                 if (self.params[key] < default_min) or (self.params[key] > default_max):
-                    raise ValueError("User input for "+key+" is "+self.params+" but must lie within ["+str(default_min)+","+str(default_max)+"].")
+                    raise ValueError("User input for "+key+" is "+str(self.params[key])+" but must lie within ["+str(default_min)+","+str(default_max)+"].")
             if (key not in self.params):
                 self.params[key] = default
         
