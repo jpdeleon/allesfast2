@@ -589,12 +589,12 @@ def _make_multistar_mist_plot(star_A, companion_stars, outfile):
         return teffs_iso[use], track_logg[use]
 
     def _get_point(star):
-        logg_best = np.log10((float(star.mstar) / max(float(star.rstar), 1e-6) ** 2) * gravitysun)
+        logg_best = np.log10((float(star.mstar) / max(float(star.rstar)**2, 1e-12)) * gravitysun)
         mistteff, mistrstar = get_mist_point(float(star.eep), float(star.mstar), float(star.feh))
         if np.isnan(mistteff):
             logg_mist = logg_best
         else:
-            logg_mist = np.log10((float(star.mstar) / max(mistrstar, 1e-6) ** 2) * gravitysun)
+            logg_mist = np.log10((float(star.mstar) / max(mistrstar**2, 1e-12)) * gravitysun)
         return float(star.teff), logg_best, mistteff, logg_mist
 
     all_stars = [star_A] + list(companion_stars)

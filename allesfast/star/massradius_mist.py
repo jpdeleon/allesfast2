@@ -550,8 +550,8 @@ def _plot_mist_track(teffs, rstars, ages, eeps, mstar, feh, age, teff, rstar,
     teff_vals = teffs[use]
     logg_vals = track_logg[use]
 
-    logg_best = np.log10((mstar / (max(rstar, 1e-6)**2)) * gravitysun)
-    logg_mist = np.log10((mstar / (max(mistrstar, 1e-6)**2)) * gravitysun)
+    logg_best = np.log10((mstar / max(rstar**2, 1e-12)) * gravitysun)
+    logg_mist = np.log10((mstar / max(mistrstar**2, 1e-12)) * gravitysun)
 
     fig, ax = plt.subplots(figsize=(6, 5.5))
     ax.plot(teff_vals, logg_vals, color="black", lw=1.0)
