@@ -1307,7 +1307,7 @@ def logprint_initial_guess():
     logprint('--------------------------')
     for key in config.BASEMENT.settings:
         if config.BASEMENT.settings[key]!='':
-            logprint('{0: <30}'.format(key), '{0: <15}'.format(str(config.BASEMENT.settings[key]))) #I hate Python 3, and I hope someone finds this comment...
+            logprint('{0: <30}'.format(key), '{0: <15}'.format(str(config.BASEMENT.settings[key])))
         else:
             logprint('\n{0: <30}'.format(key))
 

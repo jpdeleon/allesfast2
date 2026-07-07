@@ -31,6 +31,7 @@ dependencies = [
     "requests>=2.31.0",
     "statsmodels>=0.14.1",
     "astroquery>=0.4.7",
+    "wotan>=1.0.0",
 ]
 
 [tool.setuptools.packages.find]
