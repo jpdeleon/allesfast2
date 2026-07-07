@@ -635,7 +635,7 @@ def estimate_tidal_locking_time_scale_Wikipedia(P, R_companion, M_companion, M_h
     M_companion = (M_companion*u.Mearth).to(u.kg).value # in kg
     M_host = (M_host*u.Msun).to(u.kg).value # in kg
     
-    return 6 * (a**6 * R_companion * mu) / (M_companion + M_host**2) * 1e10
+    return 6 * (a**6 * R_companion * mu) / (M_companion + M_host)**2 * 1e10
 
 
 
