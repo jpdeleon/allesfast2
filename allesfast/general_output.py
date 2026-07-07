@@ -1205,7 +1205,7 @@ def save_modelfiles(samples, prefix):
                     # For RM instruments: subtract ALL companions' Keplerian to get RM-only band
                     if _is_rm_inst:
                         from .utils.plot_publication import _compute_keplerian_from_params
-                        _all_comps = [c for c in 'bcdefghij'
+                        _all_comps = [c for c in config.BASEMENT.settings['companions_all']
                                       if _p.get(f'{c}_period') is not None and _p.get(f'{c}_K') is not None]
                         _kep = sum(_compute_keplerian_from_params(xx, _p, c) for c in _all_comps)
                         _rm_models.append(_full - _kep)
