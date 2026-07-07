@@ -1264,6 +1264,8 @@ def rv_fct(params, inst, companion, xx=None, settings=None):
         # calculate the duration of the transit
         try:
             R_star_over_a = params[companion+'_rsuma'] / (1. + params[companion+'_rr'])
+            eccentricity_correction_b_tra = ( (1. - e**2) / ( 1. + e*np.sin(w) ) )
+            b_tra = (1./R_star_over_a) * params[companion+'_cosi'] * eccentricity_correction_b_tra
             eccentricity_correction_T_tra = ( np.sqrt(1. - e**2) / ( 1. + e*np.sin(w) ) )
             T_tra_tot = params[companion+'_period'] / np.pi * 24. \
                         * np.arcsin( R_star_over_a \
