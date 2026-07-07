@@ -18,7 +18,7 @@ Web: www.mnguenther.com
 #::: modules
 try:
     import emcee
-except:
+except Exception:
     pass
 
 

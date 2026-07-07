@@ -34,7 +34,7 @@ import warnings
 try:
     import rebound
     from rebound.particle import Particle
-except:
+except Exception:
     warnings.warn('Module "rebound" could not be imported. Orbital plots are not available.')
 from itertools import cycle
 

@@ -486,7 +486,7 @@ def derive(samples, mode):
         #----------------------------------------------------------------------
         try:
             derived_samples[companion+'_surface_gravity'] = 2. * np.pi / (get_params(companion+'_period')*86400.) * np.sqrt((1.-derived_samples[companion+'_e']**2)) * (get_params(companion+'_K')*1e5) / (derived_samples[companion+'_R_companion/a'])**2 / sin_d(derived_samples[companion+'_i'])
-        except:
+        except Exception:
             pass
         
         
@@ -537,7 +537,7 @@ def derive(samples, mode):
     derived_samples['combined_A_density'] = []
     for companion in config.BASEMENT.settings['companions_phot']:
         try: derived_samples['combined_A_density'] = np.append(derived_samples['combined_A_density'], derived_samples[companion+'_A_density'])
-        except: pass
+        except Exception: pass
 
     #==========================================================================
     #::: sv-parameterization: derive vsini and lambda per sample

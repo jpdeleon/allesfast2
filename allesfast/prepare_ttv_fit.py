@@ -137,7 +137,7 @@ def prepare_ttv_fit(datadir, style='fullplot', max_transits=20):
             try:
                 trend = flatten(tr_times, tr_flux, window_length=eclipse_width[companion]/2., method='biweight', return_trend=True)[1]
                 tmid2 = np.median( tr_times[ np.argsort(trend)[0:int(N_points_in_eclipse/2.)] ] ) # the tmid estimated from the observations as the minimum of the data
-            except:
+            except Exception:
                 warnings.warn('Install wotan for improved performance of prepare_ttv_fit().')
                 trend = None
                 tmid2 = np.median( tr_times[ np.argsort(tr_times)[0:int(N_points_in_eclipse/2.)] ] ) # the tmid estimated from the observations as the minimum of the data

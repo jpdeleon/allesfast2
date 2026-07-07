@@ -214,7 +214,7 @@ class Basement():
         if self.settings['shift_epoch']:
             try:
                 self.change_epoch()
-            except:
+            except Exception:
                 warnings.warn('\nCould not shift epoch (you can peacefully ignore this warning if no period was given)\n')
         
         if self.settings['fit_ttvs']:  
@@ -1399,7 +1399,7 @@ class Basement():
             _fpath = self._find_data_file(self.datadir, inst, 'phot')
             try:
                 time, flux, flux_err, custom_series = np.genfromtxt(_fpath, delimiter=',', dtype=float, unpack=True)[0:4]
-            except:
+            except Exception:
                 time, flux, flux_err = np.genfromtxt(_fpath, delimiter=',', dtype=float, unpack=True)[0:3]
                 custom_series = np.zeros_like(time)
             if np.any(np.isnan(np.atleast_1d(time*flux*flux_err*custom_series))):
@@ -1445,7 +1445,7 @@ class Basement():
             _fpath = self._find_data_file(self.datadir, inst, 'rv')
             try:
                 time, rv, rv_err, custom_series = np.genfromtxt(_fpath, delimiter=',', dtype=float, unpack=True)[0:4]
-            except:
+            except Exception:
                 time, rv, rv_err = np.genfromtxt(_fpath, delimiter=',', dtype=float, unpack=True)[0:3]
                 custom_series = np.zeros_like(time)
             if np.any(np.isnan(np.atleast_1d(time*rv*rv_err*custom_series))):
@@ -1471,7 +1471,7 @@ class Basement():
             _fpath = self._find_data_file(self.datadir, inst, 'rv')
             try:
                 time, rv, rv_err, custom_series = np.genfromtxt(_fpath, delimiter=',', dtype=float, unpack=True)[0:4]
-            except:
+            except Exception:
                 time, rv, rv_err = np.genfromtxt(_fpath, delimiter=',', dtype=float, unpack=True)[0:3]
                 custom_series = np.zeros_like(time)
             if not all(np.diff(time)>0):
@@ -1592,7 +1592,7 @@ class Basement():
                 ind_p = np.where(self.fitkeys==companion+'_period')[0][0]
                 N_truth_shift = int(np.round((self.settings['mid_epoch']-self.fittruths[ind_e])/self.fittruths[ind_p]))
                 self.fittruths[ind_e] += N_truth_shift * self.fittruths[ind_p]
-            except:
+            except Exception:
                 pass
             
             #::: if a fit param, also update the bounds accordingly

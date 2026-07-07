@@ -50,13 +50,13 @@ def rebin_err(t, f, ferr=None, dt = 0.02, phasefolded=False, ferr_type='medsig',
     if sigmaclip is True:
         try:
             f = sigma_clip(f, sigma=5, iters=3)
-        except:
+        except Exception:
             pass
     
     #::: make masked values to NaNs if applicable
     try:
         f[ f.mask ] = np.nan
-    except:
+    except Exception:
         pass
     
     #::: bin
@@ -81,7 +81,7 @@ def rebin_err(t, f, ferr=None, dt = 0.02, phasefolded=False, ferr_type='medsig',
                     try:
                         freg[i] = np.nanmean(f[l])
                         freg_err[i] = np.nanstd(f[l])
-                    except: #e.g. in case of an empty or completely masked array
+                    except Exception: #e.g. in case of an empty or completely masked array
                         freg[i] = np.nan
                         freg_err[i] = np.nan
                     
@@ -123,7 +123,7 @@ def rebin_err_matrix(t, fmatrix, fmatrixerr=None, dt = 0.02, phasefolded=False, 
                 f = sigma_clip( fmatrix[ j, : ], sigma=5, iters=3 )
                 f [ f.mask ] = np.nan
                 fmatrix[ j, : ] = f
-            except:
+            except Exception:
                 pass
     
     #::: bin
@@ -246,7 +246,7 @@ def plot_phase_folded_lightcurve(time, flux, period, epoch, ax=None, xlim=[-0.25
         ax.set_xlabel( 'Phase' )
         ax.set_xlim(xlim)
         try: ax.set_ylim([ np.nanmin(phaseflux-2*phaseflux_err), np.nanmax(phaseflux+2*phaseflux_err) ])
-        except: pass
+        except Exception: pass
 #        ax.axvline(0,color='k')
 #        ax.axvline(0.5,color='k')
     

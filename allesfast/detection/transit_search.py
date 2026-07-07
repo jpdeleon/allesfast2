@@ -46,7 +46,7 @@ except ImportError:
 #::: my modules
 try:
     from exoworlds.tess import tessio
-except:
+except Exception:
     pass
 from ..exoworlds_rdx.lightcurves.lightcurve_tools import plot_phase_folded_lightcurve, rebin_err  
 from ..time_series import clean, slide_clip

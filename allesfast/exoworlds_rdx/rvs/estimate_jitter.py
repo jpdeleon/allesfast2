@@ -51,7 +51,7 @@ def log_probability(params):
     try:
         ll = log_likelihood(params)
         lp = external_log_prior(params)
-    except:
+    except Exception:
         return -np.inf
     if not np.isfinite(lp):
         return -np.inf

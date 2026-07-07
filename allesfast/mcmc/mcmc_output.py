@@ -499,7 +499,7 @@ def mcmc_output(datadir, quiet=False):
         fig, ax = plot_top_down_view(params_median, params_star)
         fig.savefig( os.path.join(config.BASEMENT.outdir,'top_down_view.pdf'), bbox_inches='tight' )
         plt.close(fig)        
-    except:
+    except Exception:
         logprint('\nOrbital plots could not be produced.')
 
     #::: stellar diagnostic plots (SED + MIST)

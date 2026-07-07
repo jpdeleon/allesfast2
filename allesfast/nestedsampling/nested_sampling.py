@@ -29,7 +29,7 @@ from contextlib import closing
 import gzip
 try:
    import cPickle as pickle
-except:
+except Exception:
    import pickle
 from time import time as timer
 

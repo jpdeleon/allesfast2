@@ -38,7 +38,7 @@ from .transit_search import get_tls_kwargs_by_tic, tls_search
 from .injection_recovery_output import irplot
 try:
     from exoworlds.tess import tessio
-except:
+except Exception:
     pass
 
 #::: plotting settings

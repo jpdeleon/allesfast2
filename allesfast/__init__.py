@@ -22,12 +22,12 @@ import os
 import gzip
 try:
    import cPickle as pickle
-except:
+except Exception:
    import pickle
 from shutil import copyfile
 try:
     import emcee
-except:
+except Exception:
     pass
 
 #::: plotting settings
@@ -95,12 +95,12 @@ class allesclass():
         
         try:
             self.params_star = config.BASEMENT.params_star
-        except:
+        except Exception:
             pass
         
         try:
             self.external_priors = config.BASEMENT.external_priors
-        except:
+        except Exception:
             pass
         
         #::: nested sampling?

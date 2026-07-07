@@ -22,7 +22,7 @@ import os, sys
 import gzip
 try:
    import cPickle as pickle
-except:
+except Exception:
    import pickle
 from dynesty import utils as dyutils
 from tqdm import tqdm
@@ -169,7 +169,7 @@ def get_logZ(datadirs, quiet=False):
             results = pickle.load(f)
             f.close()
             
-        except: #old version
+        except Exception: #old version
             fname = os.path.join( rname, 'results', 'save_ns.pickle' )
             if not quiet:
                 print('--------------------------')

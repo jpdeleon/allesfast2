@@ -319,7 +319,7 @@ def update_params(theta):
             # Standard path: cosi is a direct parameter
             try:
                 params[companion+'_incl'] = np.arccos( params[companion+'_cosi'] )/np.pi*180.
-            except:
+            except Exception:
                 params[companion+'_incl'] = None
         
        
@@ -405,7 +405,7 @@ def update_params(theta):
         try:
             params[companion+'_radius_1'] = params[companion+'_rsuma'] / (1. + params[companion+'_rr'])
             params[companion+'_radius_2'] = params[companion+'_radius_1'] * params[companion+'_rr']
-        except:
+        except Exception:
             params[companion+'_radius_1'] = None
             params[companion+'_radius_2'] = None
                 
@@ -582,7 +582,7 @@ def update_params(theta):
         try:
             a_1 = 0.019771142 * params[companion+'_K'] * params[companion+'_period'] * np.sqrt(1. - params[companion+'_ecc']**2)/np.sin(params[companion+'_incl']*np.pi/180.)
             params[companion+'_a'] = (1.+1./params[companion+'_q'])*a_1
-        except:
+        except Exception:
             params[companion+'_a'] = None
         if params[companion+'_a'] == 0.:
             params[companion+'_a'] = None
@@ -1271,7 +1271,7 @@ def rv_fct(params, inst, companion, xx=None, settings=None):
                                     * np.sqrt( (1. + params[companion+'_rr'])**2 - b_tra**2 ) \
                                     / np.sin( np.arccos(params[companion+'_cosi'])) ) \
                         * eccentricity_correction_T_tra #in h
-        except:
+        except Exception:
             # if the calculation of the duration of the transit fails, we set it to 0.5 days
             T_tra_tot = 0.5
 

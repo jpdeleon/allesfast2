@@ -31,7 +31,7 @@ from glob import glob
 from pprint import pprint
 try: 
     from brokenaxes import brokenaxes
-except: 
+except Exception: 
     pass #don't throw an error for now, otherwise people will panic
 import pathlib
 from astropy.time import Time
@@ -660,7 +660,7 @@ def _get_errorbar_color(color):
     try:
         rgb = ColorConverter.to_rgb(color)
         return _scale_lightness(rgb, 1.75)
-    except:
+    except Exception:
         return None
 
 

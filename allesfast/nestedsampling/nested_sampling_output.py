@@ -29,7 +29,7 @@ import os
 import gzip
 try:
    import cPickle as pickle
-except:
+except Exception:
    import pickle
 from copy import deepcopy
 from dynesty import utils as dyutils
@@ -142,7 +142,7 @@ def ns_output(datadir):
                         first_transit = last_transit
                     else:
                         first_transit = -1
-                except:
+                except Exception:
                     first_transit = -1
                     pass
             
@@ -199,7 +199,7 @@ def ns_output(datadir):
     try:
         cfig, caxes = dyplot.cornerplot(results2, labels=labels, span=[0.997 for i in range(config.BASEMENT.ndim)], quantiles=[0.16, 0.5, 0.84], truths=fittruths2, hist_kwargs={'alpha':0.25,'linewidth':0,'histtype':'stepfilled'}, 
                                         label_kwargs={"fontsize":fontsize, "rotation":45, "horizontalalignment":'right'})
-    except:
+    except Exception:
         logprint('! WARNING')
         logprint('Dynesty corner plot could not be created. Please contact maxgue@mit.edu.')
         cfig, caxes = plt.subplots(config.BASEMENT.ndim,config.BASEMENT.ndim,figsize=(2*config.BASEMENT.ndim,2*config.BASEMENT.ndim))
@@ -281,7 +281,7 @@ def ns_output(datadir):
         fig, ax = plot_top_down_view(params_median, params_star)
         fig.savefig( os.path.join(config.BASEMENT.outdir,'top_down_view.pdf'), bbox_inches='tight' )
         plt.close(fig)        
-    except:
+    except Exception:
         logprint('\nOrbital plots could not be produced.')
 
 
@@ -291,14 +291,14 @@ def ns_output(datadir):
             path = make_sed_plot(params_median, config.BASEMENT.datadir, config.BASEMENT.outdir, outfile='ns_sed_fit.pdf')
             if path is not None:
                 logprint('\nSaved', path)
-        except:
+        except Exception:
             pass
     if config.BASEMENT.settings.get('use_mist_prior', False):
         try:
             path = make_mist_plot(params_median, config.BASEMENT.outdir, outfile='ns_mist_track.pdf')
             if path is not None:
                 logprint('\nSaved', path)
-        except:
+        except Exception:
             pass
     
     
@@ -331,7 +331,7 @@ def get_ns_posterior_samples(datadir, Nsamples=None, as_type='dic'):
         results = pickle.load(f)
         f.close()
         
-    except:
+    except Exception:
         with open(os.path.join(datadir,'results','save_ns.pickle'),'rb') as f:
             results = pickle.load(f)    
 
