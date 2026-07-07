@@ -2487,7 +2487,7 @@ def baseline_get_gp(params, inst, key):
                             log_L=params['baseline_gp_custom_lnL_'+key+'_'+inst],
                             log_P=params['baseline_gp_custom_lnP_'+key+'_'+inst])
     else: 
-        KeyError('GP settings and params do not match.')
+        raise KeyError('GP settings and params do not match.')
     
     #::: GP and mean (simple offset)  
     if 'baseline_gp_offset_'+key+'_'+inst in params:
@@ -2580,7 +2580,7 @@ def calculate_stellar_var(params, inst, key, model=None, baseline=None, yerr_w=N
     if stellar_var_method not in ['none']:
         if key=='flux': key2 = 'inst_phot'
         elif key=='rv': key2 = 'inst_rv'
-        else: KeyError('Kaput.')
+        else: raise KeyError('Kaput.')
         
         if inst=='all': insts = config.BASEMENT.settings[key2]
         else: insts = [inst]
@@ -2648,7 +2648,7 @@ def stellar_var_get_gp(params, key):
                             log_L=params['stellar_var_gp_custom_lnL_'+key],
                             log_P=params['stellar_var_gp_custom_lnP_'+key])
     else: 
-        KeyError('GP settings and params do not match.')
+        raise KeyError('GP settings and params do not match.')
     
     #::: GP and mean (simple offset)  
     if 'stellar_var_gp_offset_'+key in params:
