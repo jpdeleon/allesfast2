@@ -30,7 +30,6 @@ from .exoworlds_rdx.lightcurves.lightcurve_tools import rebin_err
 
 #::: plotting settings
 import seaborn as sns
-sns.set(context='paper', style='ticks', palette='deep', font='sans-serif', font_scale=1.5, color_codes=True)
 sns.set_style({"xtick.direction": "in","ytick.direction": "in"})
 sns.set_context(rc={'lines.markeredgewidth': 1})
 
