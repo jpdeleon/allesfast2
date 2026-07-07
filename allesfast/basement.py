@@ -818,7 +818,7 @@ class Basement():
                 self.settings['A_N_spots_'+inst] = 0
         
             for companion in self.settings['companions_all']:
-                if companion+'_N_spots'+inst in self.settings:
+                if companion+'_N_spots_'+inst in self.settings:
                     self.settings[companion+'_N_spots_'+inst] = int(self.settings[companion+'_N_spots_'+inst])
                 else:
                     self.settings[companion+'_N_spots_'+inst] = 0
